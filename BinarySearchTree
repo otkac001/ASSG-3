@@ -1,6 +1,6 @@
-
+import java.util.Collection;
 import java.util.Iterator;
-import java.util.NoSuchElementException;
+import java.util.ArrayList;
 
 // BinarySearchTree class
 //
@@ -17,21 +17,20 @@ import java.util.NoSuchElementException;
 // void printTree( )      --> Print tree in sorted order
 // ******************ERRORS********************************
 // Throws UnderflowException as appropriate
-
 /**
  * Implements an unbalanced binary search tree. Note that all "matching" is
  * based on the compareTo method.
  *
  * @author Mark Allen Weiss
  */
-public class BinarySearchTree<AnyType extends Comparable<AnyType>>
-implements Iterable<AnyType>
-{
+public class MyTreeSet<AnyType extends Comparable<? super AnyType>>
+        implements Iterable<AnyType> {
+    private BinaryNode<AnyType> root;           //root of the tree
 
     /**
      * Construct the tree.
      */
-    public BinarySearchTree() {
+    public MyTreeSet() {
         root = null;
     }
 
@@ -39,82 +38,115 @@ implements Iterable<AnyType>
      * Returns an iterator pointing just before the item in the tree with the
      * lowest value.
      */
-    public Iterator<AnyType> iterator()
-    {
+    public Iterator<AnyType> iterator() {
         return new MyIterator();
     }
-    
-    //traverses in ascending order
-    private class MyIterator implements Iterator<AnyType>
-    {
+
+    private class MyIterator implements Iterator<AnyType> {
+
         BinaryNode<AnyType> current = findMin(root);
-        boolean okToRemove = false;
-    
-    //Returns true if the iteration has more elements.
-    public boolean hasNext()
-    {
-        return (successor(current)!=null);
+
+        public boolean hasNext() {
+            return current != null;
+        }
+
+        public AnyType next() {
+            AnyType temp = current.element;
+            current = successor(current);
+            return temp;
+        }
+
+        public void remove() {
+            throw new UnsupportedOperationException();
+        }
     }
 
     /**
-     * Returns the next element in the iteration.
+     * Returns the next value in the sequence, starting at the node pointed to
+     * by the input parameter. This method is used by the iterator.
      */
-    public AnyType next()
-    {
-        if (!this.hasNext())
-            throw new NoSuchElementException();
-        this.okToRemove = true;
-        BinaryNode<AnyType> nextNode = successor(current);
-        current = nextNode;
-        return nextNode.element;
+    private BinaryNode<AnyType> successor(BinaryNode<AnyType> p) {
+
+        if (p.right != null) {
+            return findMin(p.right);
+        }
+
+        BinaryNode<AnyType> Pparent = p.parent;
+        while (Pparent != null && p == Pparent.right) {
+            p = Pparent;
+            Pparent = Pparent.parent;
+        }
+        return Pparent;
     }
 
     /**
-     * Removes the last element returned. This method can be called only 
-     * once per call to next().
+     * Returns the element at a given index position. 
+     * Throws an IndexOutOfBoundsException if the item is not found. 
      */
-    public void remove()
+      	 int sizeLeft = 0;
+   	 
+ public AnyType get( int index ) 
     {
-        if (!okToRemove)
-            throw new IllegalStateException();
-        current = null;
-        okToRemove = false;
+   	 
+   	 BinaryNode<AnyType> node = root;
+   	 int count = index + 1;
+   	 int sizeLeft = 0;
+   	 
+   	 while( node != null )    {
+   		 sizeLeft = node.sizeOfLeftSubtree();
+   		 if( sizeLeft + 1 == count )
+   			 return node.element;
+   		 else if( sizeLeft < count ) {
+   			 node = node.right;
+   			 count -= sizeLeft+1;
+   		 }
+   		 else
+   			 node = node.left;
+   	 }
+   	 
+   	 throw new IndexOutOfBoundsException();
     }
-        
-    }
-    
-    /** Returns the next value in the
-     * sequence, starting at the node pointed to by the input parameter. This
-     * method is used by the iterator.
-     */
-    private BinaryNode<AnyType> successor(BinaryNode<AnyType> p) 
+ 
+    private BinaryNode<AnyType> getNode( int index ) 
     {
-        BinaryNode<AnyType> out ;
-        if(p.parent==null)
-            return null;
-        else if (p.parent.right!=null)  //if p has a right sibling-search for
-                                        //lowest node on that subtree
-            out = findMin(p.parent.right);
-        else            //if parent is the next lowest value
-            out = p.parent ;
-        return out;
-    }
-
-    /**
-     * Returns the element at a given index position. Throws an
-     * IndexOutOfBoundsException if the item is not found. Runs in average O(log
-     * N) time.
-     */
-    public AnyType get(int index) 
-    {
+   	 
+   	 BinaryNode<AnyType> node = root;
+   	 int count = index + 1;
+   	 int sizeLeft = 0;
+   	 
+   	 while( node != null )    {
+   		 sizeLeft = node.sizeOfLeftSubtree();
+   		 if( sizeLeft + 1 == count )
+   			 return node;
+   		 else if( sizeLeft < count ) {
+   			 node = node.right;
+   			 count -= sizeLeft+1;
+   		 }
+   		 else
+   			 node = node.left;
+   	 }
+   	 
+   	 throw new IndexOutOfBoundsException();
     }
 
     /**
      * Returns all elements falling within a range of indexes. The range is
      * inclusive
      */
-    public Collection<AnyType> getRange(int first, int last) 
-    {
+    public Collection<AnyType> getRange(int first, int last) {
+        if (first < 0 || last >= root.size) {
+            throw new IndexOutOfBoundsException();
+        } else {
+            //get the first index(Node)
+            BinaryNode<AnyType> current = getNode(first);
+            //adding the included indexes to the collection
+            Collection<AnyType> out = new ArrayList<>();
+            for (int i = first; i <= last; i++) {
+                out.add(current.element);
+                current = successor(current);
+            }
+            return out;
+        }
     }
 
     /**
@@ -123,15 +155,32 @@ implements Iterable<AnyType>
      */
     public void printLevelOrder() 
     {
+        if (root!=null)
+        {
+        System.out.print(root.element);
+        printLevelOrder(root);
+        }
     }
+    
+    private void printLevelOrder( BinaryNode<AnyType> t )
+    {
+        if (t!=null)
+        {
+            System.out.print(t.element+"  ");
+            
+            
+            
+            printLevelOrder(t.left);
+            printLevelOrder(t.right);
+        }   
+    }  
 
     /**
      * Insert into the tree; duplicates are ignored.
      *
      * @param x the item to insert.
      */
-    public void insert(AnyType x) 
-    {
+    public void insert(AnyType x) {
         root = insert(x, root);
     }
 
@@ -151,7 +200,7 @@ implements Iterable<AnyType>
      */
     public AnyType findMin() {
         if (isEmpty()) {
-            throw new UnderflowException();
+            return null;
         }
         return findMin(root).element;
     }
@@ -163,7 +212,7 @@ implements Iterable<AnyType>
      */
     public AnyType findMax() {
         if (isEmpty()) {
-            throw new UnderflowException();
+            throw null;
         }
         return findMax(root).element;
     }
@@ -205,7 +254,6 @@ implements Iterable<AnyType>
         }
     }
     
-
     /**
      * Internal method to insert into a subtree.
      *
@@ -214,23 +262,22 @@ implements Iterable<AnyType>
      * @return the new root of the subtree.
      */
     private BinaryNode<AnyType> insert(AnyType x, BinaryNode<AnyType> t) {
-        if (t == null) 
-        {
-            t.size++;
-            return new BinaryNode<>(x, null, null, t.parent, 1);
+        if (t == null) {
+            //System.out.println(x + ", ");
+            return new BinaryNode<>(x, null, null);
         }
 
         int compareResult = x.compareTo(t.element);
 
-        if (compareResult < 0) 
-        {
+        if (compareResult < 0) {
             t.left = insert(x, t.left);
-        }
-        else if (compareResult > 0) 
-        {
+            t.size += 1;	// update size of subtree
+            t.left.parent = t;
+        } else if (compareResult > 0) {
             t.right = insert(x, t.right);
-        }
-        else
+            t.size += 1;		// update size of subtree
+            t.right.parent = t;
+        } else
             ;  // Duplicate; do nothing
         return t;
     }
@@ -248,22 +295,28 @@ implements Iterable<AnyType>
         }
         int compareResult = x.compareTo(t.element);
 
-        if (compareResult < 0) 
-        {
-            t.left = remove(x, t.left);        
+        if (compareResult < 0) {
+            t.left = remove(x, t.left);
+            t.size--;
+            if (t.left != null) {
+                t.left.parent = t;
+            }
         } else if (compareResult > 0) {
             t.right = remove(x, t.right);
-        } else if (t.left != null && t.right != null) // Two children
-        {
+            t.size--;
+            if (t.right != null) {
+                t.right.parent = t;
+            }
+        } // We found the element: does it have two subtrees?
+        else if (t.left != null && t.right != null) {
             t.element = findMin(t.right).element;
             t.right = remove(t.element, t.right);
-        } 
-        else 
-        {
-            BinaryNode<AnyType> parentT = t.parent ;   //save the parent pointer
-            t = (t.left != null) ? t.left : t.right;
-            t.parent = parentT ;                      //reassign the parent pointer
             t.size--;
+            if (t.right != null) {
+                t.right.parent = t;
+            }
+        } else {  // the matching element has only one subtree
+            t = (t.left != null) ? t.left : t.right;
         }
         return t;
     }
@@ -313,16 +366,11 @@ implements Iterable<AnyType>
 
         int compareResult = x.compareTo(t.element);
 
-        if (compareResult < 0) 
-        {
+        if (compareResult < 0) {
             return contains(x, t.left);
-        } 
-        else if (compareResult > 0) 
-        {
+        } else if (compareResult > 0) {
             return contains(x, t.right);
-        }
-        else 
-        {
+        } else {
             return true;    // Match
         }
     }
@@ -339,6 +387,7 @@ implements Iterable<AnyType>
             printTree(t.right);
         }
     }
+    
 
     /**
      * Internal method to compute height of a subtree.
@@ -346,39 +395,39 @@ implements Iterable<AnyType>
      * @param t the node that roots the subtree.
      */
     private int height(BinaryNode<AnyType> t) {
-        if (t == null) 
-        {
+        if (t == null) {
             return -1;
         } else {
             return 1 + Math.max(height(t.left), height(t.right));
         }
     }
 
-    // Basic node stored in unbalanced binary search trees
     private static class BinaryNode<AnyType> {
-        // Constructors
 
         BinaryNode(AnyType theElement) {
-            this(theElement, null, null, , 0);
+            this(theElement, null, null);
         }
 
-        BinaryNode(AnyType theElement, BinaryNode<AnyType> lt, BinaryNode<AnyType> rt, BinaryNode<AnyType> parent, int size) {
+        BinaryNode(AnyType theElement, BinaryNode<AnyType> lt, BinaryNode<AnyType> rt) {
             element = theElement;
             left = lt;
             right = rt;
-            this.parent = parent ;
-            this.size = size;
+            size = 1;
         }
-        AnyType element;            // The data in the node
-        BinaryNode<AnyType> parent;
-        BinaryNode<AnyType> left;   // Left child
-        BinaryNode<AnyType> right;  // Right child
-        int size;                   //size of each subtree
-    }
-    /**
-     * The tree root.
-     */
-    private BinaryNode<AnyType> root;
+
+        int sizeOfLeftSubtree() {
+            if (left != null) {
+                return left.size;
+            } else {
+                return 0;
+            }
+        }
+        AnyType element;            		// The data in the node
+        BinaryNode<AnyType> left;   		// Left child
+        BinaryNode<AnyType> right;  		// Right child
+        BinaryNode<AnyType> parent; 		// added (Irvine)
+        int size;                         // added (Irvine)
+    } // BinaryNode class
 
     public <AnyType> void print(MyTreeSet<? extends Object> t) {
         for (Object x : t) {
@@ -396,7 +445,7 @@ implements Iterable<AnyType>
         print(t); // demonstrate the iterator
         System.out.println("\nLevel order");
         t.printLevelOrder();
-        System.out.printf("The value at index %d is %d\n", 0, t.get(0));
+        System.out.printf("\nThe value at index %d is %d\n", 0, t.get(0));
         System.out.printf("The value at index %d is %d\n", 1, t.get(1));
         System.out.printf("The value at index %d is %d\n", 2, t.get(2));
         System.out.printf("The value at index %d is %d\n", 3, t.get(3));
@@ -416,43 +465,44 @@ implements Iterable<AnyType>
         System.out.printf("The value at index %d is %d\n", 2, t.get(2));
         System.out.printf("The value at index %d is %d\n", 3, t.get(3));
     }
-    void test2()
-    {
-        MyTreeSet<String> t = new MyTreeSet<>( );
-        String[] array = { "Harry","Maria","Bob","Dan","Sue","Ann","Jose" }; 
-  
-        for(int i = 0; i < array.length; i++)
+
+    void test2() {
+        MyTreeSet<String> t = new MyTreeSet<>();
+        String[] array = {"Harry", "Maria", "Bob", "Dan", "Sue", "Ann", "Jose"};
+
+        for (int i = 0; i < array.length; i++) {
             t.insert(array[i]);
-        print( t );
-  
+        }
+        print(t);
+
         System.out.print("Level order: ");
         t.printLevelOrder();
         System.out.println("\n");
-  
-        System.out.printf( "The value at index %d is %s\n", 0, t.get(0) );
-        System.out.printf( "The value at index %d is %s\n", 2, t.get(2) );
-        System.out.printf( "The value at index %d is %s\n", 6, t.get(6) );
-	   
+
+        System.out.printf("The value at index %d is %s\n", 0, t.get(0));
+        System.out.printf("The value at index %d is %s\n", 2, t.get(2));
+        System.out.printf("The value at index %d is %s\n", 6, t.get(6));
+
         System.out.print("\nRemoving ");
-        for( int i = 1; i < array.length; i+= 2 ) {
+        for (int i = 1; i < array.length; i += 2) {
             System.out.print(array[i] + ", ");
-	  t.remove( array[i] );
+            t.remove(array[i]);
         }
-        System.out.println();	
+        System.out.println();
 
         System.out.println("\nTree contents after removing elements:");
-        print( t );
-  
+        print(t);
+
         // verify that the get method still works
-        System.out.printf( "The value at index %d is %s\n", 0, t.get(0) );
-        System.out.printf( "The value at index %d is %s\n", 2, t.get(2) );
-        System.out.printf( "The value at index %d is %s\n", 3, t.get(3) );
+        System.out.printf("The value at index %d is %s\n", 0, t.get(0));
+        System.out.printf("The value at index %d is %s\n", 2, t.get(2));
+        System.out.printf("The value at index %d is %s\n", 3, t.get(3));
 
     }
     // Test program
 
     public static void main(String[] args) {
-        BinarySearchTree app = new BinarySearchTree();  //replaced Asg3_Test class name
+        MyTreeSet app = new MyTreeSet();  //replaced Asg3_Test class name
         app.test1();                //first test code: using integers
         app.test2();                //second test code: using strings
 
