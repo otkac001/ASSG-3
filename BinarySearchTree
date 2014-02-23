@@ -1,3 +1,7 @@
+/**
+ * Miguel Chateloin
+ * Olena Tcachenko
+ */
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.ArrayList;
@@ -24,13 +28,16 @@ import java.util.ArrayList;
  * @author Mark Allen Weiss
  */
 public class MyTreeSet<AnyType extends Comparable<? super AnyType>>
-        implements Iterable<AnyType> {
+        implements Iterable<AnyType>
+{
+
     private BinaryNode<AnyType> root;           //root of the tree
 
     /**
      * Construct the tree.
      */
-    public MyTreeSet() {
+    public MyTreeSet()
+    {
         root = null;
     }
 
@@ -38,25 +45,35 @@ public class MyTreeSet<AnyType extends Comparable<? super AnyType>>
      * Returns an iterator pointing just before the item in the tree with the
      * lowest value.
      */
-    public Iterator<AnyType> iterator() {
+    public Iterator<AnyType> iterator()
+    {
         return new MyIterator();
     }
 
-    private class MyIterator implements Iterator<AnyType> {
+    private class MyIterator implements Iterator<AnyType>
+    {
 
-        BinaryNode<AnyType> current = findMin(root);
+        BinaryNode<AnyType> current;
 
-        public boolean hasNext() {
+        public MyIterator()
+        {
+            current = findMin(root);
+        }
+
+        public boolean hasNext()
+        {
             return current != null;
         }
 
-        public AnyType next() {
+        public AnyType next()
+        {
             AnyType temp = current.element;
             current = successor(current);
             return temp;
         }
 
-        public void remove() {
+        public void remove()
+        {
             throw new UnsupportedOperationException();
         }
     }
@@ -65,7 +82,8 @@ public class MyTreeSet<AnyType extends Comparable<? super AnyType>>
      * Returns the next value in the sequence, starting at the node pointed to
      * by the input parameter. This method is used by the iterator.
      */
-    private BinaryNode<AnyType> successor(BinaryNode<AnyType> p) {
+    private BinaryNode<AnyType> successor(BinaryNode<AnyType> p)
+    {
 
         if (p.right != null) {
             return findMin(p.right);
@@ -78,62 +96,62 @@ public class MyTreeSet<AnyType extends Comparable<? super AnyType>>
         }
         return Pparent;
     }
-
     /**
-     * Returns the element at a given index position. 
-     * Throws an IndexOutOfBoundsException if the item is not found. 
+     * Returns the element at a given index position.
+     * Throws an IndexOutOfBoundsException if the item is not found.
      */
-      	 int sizeLeft = 0;
-   	 
- public AnyType get( int index ) 
+    int sizeLeft = 0;
+
+    public AnyType get(int index)
     {
-   	 
-   	 BinaryNode<AnyType> node = root;
-   	 int count = index + 1;
-   	 int sizeLeft = 0;
-   	 
-   	 while( node != null )    {
-   		 sizeLeft = node.sizeOfLeftSubtree();
-   		 if( sizeLeft + 1 == count )
-   			 return node.element;
-   		 else if( sizeLeft < count ) {
-   			 node = node.right;
-   			 count -= sizeLeft+1;
-   		 }
-   		 else
-   			 node = node.left;
-   	 }
-   	 
-   	 throw new IndexOutOfBoundsException();
+
+        BinaryNode<AnyType> node = root;
+        int count = index + 1;
+        int sizeLeft = 0;
+
+        while (node != null) {
+            sizeLeft = node.sizeOfLeftSubtree();
+            if (sizeLeft + 1 == count) {
+                return node.element;
+            } else if (sizeLeft < count) {
+                node = node.right;
+                count -= sizeLeft + 1;
+            } else {
+                node = node.left;
+            }
+        }
+
+        throw new IndexOutOfBoundsException();
     }
- 
-    private BinaryNode<AnyType> getNode( int index ) 
+
+    private BinaryNode<AnyType> getNode(int index)
     {
-   	 
-   	 BinaryNode<AnyType> node = root;
-   	 int count = index + 1;
-   	 int sizeLeft = 0;
-   	 
-   	 while( node != null )    {
-   		 sizeLeft = node.sizeOfLeftSubtree();
-   		 if( sizeLeft + 1 == count )
-   			 return node;
-   		 else if( sizeLeft < count ) {
-   			 node = node.right;
-   			 count -= sizeLeft+1;
-   		 }
-   		 else
-   			 node = node.left;
-   	 }
-   	 
-   	 throw new IndexOutOfBoundsException();
+
+        BinaryNode<AnyType> node = root;
+        int count = index + 1;
+        int sizeLeft = 0;
+
+        while (node != null) {
+            sizeLeft = node.sizeOfLeftSubtree();
+            if (sizeLeft + 1 == count) {
+                return node;
+            } else if (sizeLeft < count) {
+                node = node.right;
+                count -= sizeLeft + 1;
+            } else {
+                node = node.left;
+            }
+        }
+
+        throw new IndexOutOfBoundsException();
     }
 
     /**
      * Returns all elements falling within a range of indexes. The range is
      * inclusive
      */
-    public Collection<AnyType> getRange(int first, int last) {
+    public Collection<AnyType> getRange(int first, int last)
+    {
         if (first < 0 || last >= root.size) {
             throw new IndexOutOfBoundsException();
         } else {
@@ -153,34 +171,31 @@ public class MyTreeSet<AnyType extends Comparable<? super AnyType>>
      * Prints the tree in level-order, which means the root is printed, then all
      * nodes at level 2, then nodes at level 3, and so on.
      */
-    public void printLevelOrder() 
+    public void printLevelOrder()
     {
-        if (root!=null)
-        {
-        System.out.print(root.element);
-        printLevelOrder(root);
+        if (root == null) System.out.println("Empty");
+        for(int level = 1; level <= height(root); level++){
+            printLevel(root, level);
         }
     }
-    
-    private void printLevelOrder( BinaryNode<AnyType> t )
+
+    private void printLevel(BinaryNode<AnyType> t, int level)
     {
-        if (t!=null)
-        {
-            System.out.print(t.element+"  ");
-            
-            
-            
-            printLevelOrder(t.left);
-            printLevelOrder(t.right);
-        }   
-    }  
+        if (t == null) return;
+        if(level == 1) System.out.println(t);
+        else if(level > 1){
+            printLevel(t.left, level-1);
+            printLevel(t.right, level-1);
+        }
+    }
 
     /**
      * Insert into the tree; duplicates are ignored.
      *
      * @param x the item to insert.
      */
-    public void insert(AnyType x) {
+    public void insert(AnyType x)
+    {
         root = insert(x, root);
     }
 
@@ -189,7 +204,8 @@ public class MyTreeSet<AnyType extends Comparable<? super AnyType>>
      *
      * @param x the item to remove.
      */
-    public void remove(AnyType x) {
+    public void remove(AnyType x)
+    {
         root = remove(x, root);
     }
 
@@ -198,7 +214,8 @@ public class MyTreeSet<AnyType extends Comparable<? super AnyType>>
      *
      * @return smallest item or null if empty.
      */
-    public AnyType findMin() {
+    public AnyType findMin()
+    {
         if (isEmpty()) {
             return null;
         }
@@ -210,7 +227,8 @@ public class MyTreeSet<AnyType extends Comparable<? super AnyType>>
      *
      * @return the largest item of null if empty.
      */
-    public AnyType findMax() {
+    public AnyType findMax()
+    {
         if (isEmpty()) {
             throw null;
         }
@@ -221,16 +239,19 @@ public class MyTreeSet<AnyType extends Comparable<? super AnyType>>
      * Find an item in the tree.
      *
      * @param x the item to search for.
+     * <p/>
      * @return true if not found.
      */
-    public boolean contains(AnyType x) {
+    public boolean contains(AnyType x)
+    {
         return contains(x, root);
     }
 
     /**
      * Make the tree logically empty.
      */
-    public void makeEmpty() {
+    public void makeEmpty()
+    {
         root = null;
     }
 
@@ -239,29 +260,33 @@ public class MyTreeSet<AnyType extends Comparable<? super AnyType>>
      *
      * @return true if empty, false otherwise.
      */
-    public boolean isEmpty() {
+    public boolean isEmpty()
+    {
         return root == null;
     }
 
     /**
      * Print the tree contents in sorted order.
      */
-    public void printTree() {
+    public void printTree()
+    {
         if (isEmpty()) {
             System.out.println("Empty tree");
         } else {
             printTree(root);
         }
     }
-    
+
     /**
      * Internal method to insert into a subtree.
      *
      * @param x the item to insert.
      * @param t the node that roots the subtree.
+     * <p/>
      * @return the new root of the subtree.
      */
-    private BinaryNode<AnyType> insert(AnyType x, BinaryNode<AnyType> t) {
+    private BinaryNode<AnyType> insert(AnyType x, BinaryNode<AnyType> t)
+    {
         if (t == null) {
             //System.out.println(x + ", ");
             return new BinaryNode<>(x, null, null);
@@ -287,9 +312,11 @@ public class MyTreeSet<AnyType extends Comparable<? super AnyType>>
      *
      * @param x the item to remove.
      * @param t the node that roots the subtree.
+     * <p/>
      * @return the new root of the subtree.
      */
-    private BinaryNode<AnyType> remove(AnyType x, BinaryNode<AnyType> t) {
+    private BinaryNode<AnyType> remove(AnyType x, BinaryNode<AnyType> t)
+    {
         if (t == null) {
             return t;   // Item not found; do nothing
         }
@@ -325,9 +352,11 @@ public class MyTreeSet<AnyType extends Comparable<? super AnyType>>
      * Internal method to find the smallest item in a subtree.
      *
      * @param t the node that roots the subtree.
+     * <p/>
      * @return node containing the smallest item.
      */
-    private BinaryNode<AnyType> findMin(BinaryNode<AnyType> t) {
+    private BinaryNode<AnyType> findMin(BinaryNode<AnyType> t)
+    {
         if (t == null) {
             return null;
         } else if (t.left == null) {
@@ -340,9 +369,11 @@ public class MyTreeSet<AnyType extends Comparable<? super AnyType>>
      * Internal method to find the largest item in a subtree.
      *
      * @param t the node that roots the subtree.
+     * <p/>
      * @return node containing the largest item.
      */
-    private BinaryNode<AnyType> findMax(BinaryNode<AnyType> t) {
+    private BinaryNode<AnyType> findMax(BinaryNode<AnyType> t)
+    {
         if (t != null) {
             while (t.right != null) {
                 t = t.right;
@@ -357,9 +388,11 @@ public class MyTreeSet<AnyType extends Comparable<? super AnyType>>
      *
      * @param x is item to search for.
      * @param t the node that roots the subtree.
+     * <p/>
      * @return node containing the matched item.
      */
-    private boolean contains(AnyType x, BinaryNode<AnyType> t) {
+    private boolean contains(AnyType x, BinaryNode<AnyType> t)
+    {
         if (t == null) {
             return false;
         }
@@ -380,21 +413,22 @@ public class MyTreeSet<AnyType extends Comparable<? super AnyType>>
      *
      * @param t the node that roots the subtree.
      */
-    private void printTree(BinaryNode<AnyType> t) {
+    private void printTree(BinaryNode<AnyType> t)
+    {
         if (t != null) {
             printTree(t.left);
             System.out.println(t.element);
             printTree(t.right);
         }
     }
-    
 
     /**
      * Internal method to compute height of a subtree.
      *
      * @param t the node that roots the subtree.
      */
-    private int height(BinaryNode<AnyType> t) {
+    private int height(BinaryNode<AnyType> t)
+    {
         if (t == null) {
             return -1;
         } else {
@@ -402,41 +436,52 @@ public class MyTreeSet<AnyType extends Comparable<? super AnyType>>
         }
     }
 
-    private static class BinaryNode<AnyType> {
+    private static class BinaryNode<AnyType>
+    {
+        AnyType element;            		// The data in the node
+        BinaryNode<AnyType> left;   		// Left child
+        BinaryNode<AnyType> right;  		// Right child
+        BinaryNode<AnyType> parent; 		// added (Irvine)
+        int size;                         // added (Irvine)
 
-        BinaryNode(AnyType theElement) {
+        BinaryNode(AnyType theElement)
+        {
             this(theElement, null, null);
         }
 
-        BinaryNode(AnyType theElement, BinaryNode<AnyType> lt, BinaryNode<AnyType> rt) {
+        BinaryNode(AnyType theElement, BinaryNode<AnyType> lt, BinaryNode<AnyType> rt)
+        {
             element = theElement;
             left = lt;
             right = rt;
             size = 1;
         }
 
-        int sizeOfLeftSubtree() {
+        int sizeOfLeftSubtree()
+        {
             if (left != null) {
                 return left.size;
             } else {
                 return 0;
             }
         }
-        AnyType element;            		// The data in the node
-        BinaryNode<AnyType> left;   		// Left child
-        BinaryNode<AnyType> right;  		// Right child
-        BinaryNode<AnyType> parent; 		// added (Irvine)
-        int size;                         // added (Irvine)
+        
+        public String toString(){
+            return this.element.toString();
+        }
+        
     } // BinaryNode class
 
-    public <AnyType> void print(MyTreeSet<? extends Object> t) {
+    public <AnyType> void print(MyTreeSet<? extends Object> t)
+    {
         for (Object x : t) {
             System.out.print(x + ", ");
         }
         System.out.println("\n");
     }
 
-    void test1() {
+    void test1()
+    {
         MyTreeSet<Integer> t = new MyTreeSet<>();
         int[] array = {20, 10, 11, 30, 2, 29, 33, 28, 17, 4};
         for (int i = 0; i < array.length; i++) {
@@ -466,7 +511,8 @@ public class MyTreeSet<AnyType extends Comparable<? super AnyType>>
         System.out.printf("The value at index %d is %d\n", 3, t.get(3));
     }
 
-    void test2() {
+    void test2()
+    {
         MyTreeSet<String> t = new MyTreeSet<>();
         String[] array = {"Harry", "Maria", "Bob", "Dan", "Sue", "Ann", "Jose"};
 
@@ -501,10 +547,10 @@ public class MyTreeSet<AnyType extends Comparable<? super AnyType>>
     }
     // Test program
 
-    public static void main(String[] args) {
+    public static void main(String[] args)
+    {
         MyTreeSet app = new MyTreeSet();  //replaced Asg3_Test class name
         app.test1();                //first test code: using integers
         app.test2();                //second test code: using strings
-
     }
 }
